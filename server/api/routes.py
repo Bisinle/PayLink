@@ -138,6 +138,8 @@ class Login(Resource):
 
 
        #***************R E F R E S H_____-T O K E N 
+
+
 @auth.route('/refresh')
 class Refresh(Resource):
     @jwt_required(refresh=True)
@@ -234,49 +236,62 @@ class Transactions(Resource):
     def post(self):
         data = request.get_json()
         print(data)
-        #-------------------------post the transaction
-        transaction = Transaction(
-            amount=data['amount'],
-            receiver_account=data['receiver_account'],
-            sender_id=data['sender_id'],
-            category_id=Category.query.filter_by(type=data['category']).first().id,
-        )
-        #---- we check if the receiver is a beneficiary of the sender
-        #---------check if th erciver id is in 
-        #--------------move the money 
-        sender = User_Profile.query.filter_by(id = data['sender_id']).first()
-        sender.wallet.balance -= data['amount']
-        receiver = User_Profile.query.filter_by(Account = data['receiver_account']).first()
-        receiver.wallet.balance += data['amount']
-
-        db.session.add(transaction)
-        db.session.commit()
-        # print(sender.wallet.balance)
-        # print('_________________________________________')
-        # print(receiver.wallet.balance)
-
-
-        sender_wallet_activity = WalletActivity(
-            user_id =sender.id,
-            transaction_type ='sent',
-            amount=transaction.amount,
-            description = f'sent money to {receiver.first_name}',
-            transaction_id = transaction.id       
-              )
+        amount= data['amount']
+        account= data['account']
+        sender_id= data['user_id']
+        category_id= Category.query.filter_by(type=data['category']).first().id
         
 
-        receiver_wallet_activity = WalletActivity(
-            user_id =receiver.id,
-            transaction_type ='received',
-            amount=transaction.amount,
-            description = f'received money from {sender.first_name}',
-            transaction_id = transaction.id        )
+        if not amount or not account or not sender_id or not category_id:
+            return make_response({"msg":"Bad request, please check the data you are iputting"})
 
-        db.session.add_all([sender_wallet_activity,receiver_wallet_activity])
-        db.session.commit()
+        #-------------------------post the transaction
+        transaction = Transaction(
+            amount=amount,
+            receiver_account=account,
+            # sender_id=data['sender_id'],
+            category_id=category_id
+        )
+        if not transaction:
+            return make_response({"msg":"Bad request, please check the data you are iputting"})
+            
+
+        # #---- we check if the receiver is a beneficiary of the sender
+        # #---------check if th erciver id is in 
+        # #--------------move the money 
+        # sender = User_Profile.query.filter_by(id = data['sender_id']).first()
+        # sender.wallet.balance -= data['amount']
+        # receiver = User_Profile.query.filter_by(Account = data['receiver_account']).first()
+        # receiver.wallet.balance += data['amount']
+
+        # db.session.add(transaction)
+        # db.session.commit()
+        # # print(sender.wallet.balance)
+        # # print('_________________________________________')
+        # # print(receiver.wallet.balance)
 
 
-        return make_response(jsonify({"message":f"money from wallet to {receiver.first_name}"}))
+        # sender_wallet_activity = WalletActivity(
+        #     user_id =sender.id,
+        #     transaction_type ='sent',
+        #     amount=transaction.amount,
+        #     description = f'sent money to {receiver.first_name}',
+        #     transaction_id = transaction.id       
+        #       )
+        
+
+        # receiver_wallet_activity = WalletActivity(
+        #     user_id =receiver.id,
+        #     transaction_type ='received',
+        #     amount=transaction.amount,
+        #     description = f'received money from {sender.first_name}',
+        #     transaction_id = transaction.id        )
+
+        # db.session.add_all([sender_wallet_activity,receiver_wallet_activity])
+        # db.session.commit()
+
+
+        # return make_response(jsonify({"message":f"money from wallet to {receiver.first_name}"}))
         
 
 
