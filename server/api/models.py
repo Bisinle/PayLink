@@ -182,6 +182,9 @@ class Wallet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)   
     balance =  db.Column(db.Integer)
+    type=db.Column(db.String)
+    status=db.Column(db.String)
+    
     joined = db.Column(db.DateTime, server_default=db.func.now())
 
 
