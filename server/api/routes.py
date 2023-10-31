@@ -4,7 +4,7 @@ from api.serialization import api,ns,auth,Resource
 from api.serialization import UserProfiles_Schema,UserProfile_Schema
 from api.serialization import wallet,wallets_Schema,wallet_Schema,update_wallet
 from api.serialization import transactions_Schema,create_transaction,wallet_activities_Schema,transactions
-from api.serialization import post_user,user_model_input,User_Schema
+from api.serialization import user_model_input,User_Schema,user_login
 
 # from api.serialization import user_schema,ns,auth,Resource,user_model_input,login_input_model,vendor_model_update
 # from api.serialization import vendor_model_input,post_user
@@ -71,7 +71,7 @@ class Signup (Resource):
 
         #---------CREATE A WALLET FOR THE USER
         new_wallet = Wallet(
-            balance=0,
+            balance=100000,
             user_prof_id=user_profile.id
 
         )
@@ -94,6 +94,7 @@ class Signup (Resource):
 # create_access_token() function is used to actually generate the JWT.
 @auth.route('/login')
 class Login(Resource):
+    @auth.expect(user_login)
     def post(self):
         print('---------------------------')
         print(request.get_json())
@@ -233,65 +234,73 @@ class Transactions(Resource):
     
     #_______C R E A T E _____________-T R A N S A C T I O N S_________________
     @transactions.expect(create_transaction)
+    # @jwt_required(optional=True)
     def post(self):
+        # if 'Authorization' not in  request.get_json():
+        #     return make_response({"msg":"Bad request, please check the data you are iputting"})
+
+        # current_user = get_jwt_identity()
+
+        # print(current_user)
         data = request.get_json()
         print(data)
         amount= data['amount']
-        account= data['account']
-        sender_id= data['user_id']
+        receiver_account= data['account']
+        sender_id= data['sender_id']
         category_id= Category.query.filter_by(type=data['category']).first().id
         
 
-        if not amount or not account or not sender_id or not category_id:
+        if not amount or not receiver_account or not sender_id or not category_id:
             return make_response({"msg":"Bad request, please check the data you are iputting"})
 
         #-------------------------post the transaction
         transaction = Transaction(
             amount=amount,
-            receiver_account=account,
-            # sender_id=data['sender_id'],
+            receiver_account=receiver_account,
+            sender_id=sender_id,
             category_id=category_id
         )
         if not transaction:
             return make_response({"msg":"Bad request, please check the data you are iputting"})
             
 
-        # #---- we check if the receiver is a beneficiary of the sender
-        # #---------check if th erciver id is in 
-        # #--------------move the money 
-        # sender = User_Profile.query.filter_by(id = data['sender_id']).first()
-        # sender.wallet.balance -= data['amount']
-        # receiver = User_Profile.query.filter_by(Account = data['receiver_account']).first()
-        # receiver.wallet.balance += data['amount']
+        #---- we check if the receiver is a beneficiary of the sender
+        #---------check if th erciver id is in 
+        #--------------move the money 
+        sender = User_Profile.query.filter_by(id = sender_id).first()
+        sender.wallet.balance -= int(data['amount'])
+        receiver = User_Profile.query.filter_by(Account = receiver_account).first()
+        receiver.wallet.balance += int(data['amount'])
+        print(receiver.wallet)
 
-        # db.session.add(transaction)
-        # db.session.commit()
-        # # print(sender.wallet.balance)
-        # # print('_________________________________________')
-        # # print(receiver.wallet.balance)
+        db.session.add(transaction)
+        db.session.commit()
+        # print(sender.wallet.balance)
+        # print('_________________________________________')
+        # print(receiver.wallet.balance)
 
 
-        # sender_wallet_activity = WalletActivity(
-        #     user_id =sender.id,
-        #     transaction_type ='sent',
-        #     amount=transaction.amount,
-        #     description = f'sent money to {receiver.first_name}',
-        #     transaction_id = transaction.id       
-        #       )
+        sender_wallet_activity = WalletActivity(
+            user_id =sender.id,
+            transaction_type ='sent',
+            amount=transaction.amount,
+            description = f'sent money to {receiver.first_name}',
+            transaction_id = transaction.id       
+              )
         
 
-        # receiver_wallet_activity = WalletActivity(
-        #     user_id =receiver.id,
-        #     transaction_type ='received',
-        #     amount=transaction.amount,
-        #     description = f'received money from {sender.first_name}',
-        #     transaction_id = transaction.id        )
+        receiver_wallet_activity = WalletActivity(
+            user_id =receiver.id,
+            transaction_type ='received',
+            amount=transaction.amount,
+            description = f'received money from {sender.first_name}',
+            transaction_id = transaction.id        )
 
-        # db.session.add_all([sender_wallet_activity,receiver_wallet_activity])
-        # db.session.commit()
+        db.session.add_all([sender_wallet_activity,receiver_wallet_activity])
+        db.session.commit()
 
 
-        # return make_response(jsonify({"message":f"money from wallet to {receiver.first_name}"}))
+        return make_response(jsonify({"message":f"money from wallet to {receiver.first_name}"}))
         
 
 

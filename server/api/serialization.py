@@ -90,7 +90,7 @@ class TreansactionSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
     sender_id=ma.auto_field()
     # category=ma.auto_field()
-    category = ma.Nested("CategorySchema")
+    # category = ma.Nested("CategorySchema")
 
 
  
@@ -138,25 +138,25 @@ create_transaction =api.model('create_transaction',{
 
 user_model_input =api.model('signup',{
     
+       'first_name':fields.String,
+    'last_name':fields.String,
     'user_name':fields.String,
-    # 'profile_picture':fields.String,
+    'email':fields.String,
+    'address':fields.String,
+    'phone_number':fields.Integer,
     'password':fields.String,
-    # 'roles':fields.String change--- this when handlind the posting
-    # 'public_id':fields.String,-- and this one aswell
+    'confirm_password':fields.String,
   
 
 })
 
 
-post_user =api.model('signup_post',{
 
-    'first_name':fields.String,
-    'last_name':fields.String,
+
+
+'''__________________L O G I N _____________________________'''
+user_login =api.model('user_login',{
     'user_name':fields.String,
-    'email':fields.String,
     'password':fields.String,
-    'address':fields.String,
-    'phone':fields.String
   
-
 })
