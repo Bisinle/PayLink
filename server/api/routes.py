@@ -43,7 +43,6 @@ class Signup (Resource):
         user_exists = User.query.filter_by(user_name=data['user_name']).first() is not None
 
         if user_exists:
-            print(session["user_id"]) #= new_user.id
             print('-------------------------------------')
             return make_response(jsonify({"error": "User already exists"}), 409)
         
@@ -91,7 +90,7 @@ class Signup (Resource):
         db.session.add(new_wallet)
         db.session.commit()
        
-
+        session["user_id"] = new_user.id
         return make_response(jsonify(
             {"message":"thank you for joining us",
              "id":new_user.id,
@@ -109,7 +108,7 @@ class Login(Resource):
     def post(self):
         print('---------------------------')
         print(request.get_json())
-        username = request.get_json().get("user_name",None)
+        username = request.get_json().get("username",None)
         password = request.get_json().get("password",None)
 
 
@@ -120,9 +119,9 @@ class Login(Resource):
 
         user = User.query.filter_by(user_name=username).first()
         # session["user_id"] = user.id  
+        print(user)
+        session["user_id"] = user.id  
         print(session.get('user_id')) 
-        # print(user)
-    
         print('----------------------------------------')    
         if user is None:
             return make_response( jsonify({"error": "Unauthorized"}), 401)
@@ -135,33 +134,26 @@ class Login(Resource):
         #       return jsonify({"msg": "Bad username or password"})
 
 
-        # session["user_id"] = user.id  
-        # print(session['user_id'])             
-        return jsonify({
-            "id": user.id,
-            "user_name": user.user_name
-        })
-        # user_profile = User_Profile.query.filter_by(user_id=user.id).first()
-        # print(user_profile)
-        # user_claims= UserObject( user_id=user.id ,user_name=user.user_name,user_role=user.roles)
-        # print(user_claims)
      
+        user_profile = User_Profile.query.filter_by(user_id=user.id).first()
+        print(user_profile)
+    
      
         # access_token = create_access_token(identity=user.id)
         # refresh_token = create_refresh_token(identity=user.id)
 
-        # session["user_id"] = user.id
-        # return jsonify({
+        session["user_id"] = user.id
+        return jsonify({
            
-        #     "user_id":user_profile.id,
-        #     "user_name":user_profile.first_name,
-        #     "user_role":user.is_admin,
-        #     "user_profile_pic":user_profile.profile_pictur,
-        #     "account_number":user_profile.Account
+            "user_id":user.id,
+            "user_name":user_profile.first_name,
+            "user_role":user.is_admin,
+            "user_profile_pic":user_profile.profile_pictur,
+            "account_number":user_profile.Account
 
             
 
-        # })
+        })
 
 
        #***************R E F R E S H_____-T O K E N 
