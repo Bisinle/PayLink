@@ -37,16 +37,6 @@ class User(db.Model):
 
     __table_args__ = (UniqueConstraint("public_id","user_name", name="User_unique_constraint"),)
 
-    # @hybrid_property
-    # def password_hash(self):
-    #     return self._password
-    
-    # @password_hash.setter
-    # def password_hash(self, password):
-    #     self._password = generate_password_hash(password,method='pbkdf2:sha256')
-
-    # def authenticate(self,password):
-    #     return True if check_password_hash(self._password, password) else False
 
 
 
@@ -68,18 +58,20 @@ class User_Profile(db.Model):
     phone_number=db.Column(db.Integer)
     Account=db.Column(db.Integer)
     profile_pictur= db.Column(db.String)
+    status = db.Column(db.String)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship('User', backref='users_profile',uselist=False)
+    user = db.relationship('User', backref='users_profile',uselist=False,single_parent=True)
 
-    wallet = db.relationship('Wallet', back_populates='user_profile', cascade='all,delete-orphan',uselist=False)
+    wallet = db.relationship('Wallet', backref='user_profile', lazy=True)
+
     transactions = db.relationship('Transaction', backref='user_profile', lazy=True)
     wallet_ctivities = db.relationship('WalletActivity', backref='user_profile', lazy=True)
 
     
 
     # beneficiary relationship
-    user_beneficiary_association = db.relationship('UserBeneficiary', back_populates='user',cascade='all, delete-orphan')
+    user_beneficiary_association = db.relationship('UserBeneficiary', back_populates='user')
     beneficiaries = association_proxy('user_beneficiary_association','beneficiary')
 
     def full_name(self):
@@ -88,7 +80,7 @@ class User_Profile(db.Model):
  
 
     def __repr__(self):
-        return f'(id: {self.id}, first_name: {self.first_name},last_name: {self.last_name}, address: {self.address},  phone: {self.phone_number} )'
+        return f'(id: {self.id}, first_name: {self.first_name},last_name: {self.last_name}, address: {self.address},  phone: {self.phone_number}, wallets={self.wallet},status: {self.status} )'
 
 
 
@@ -159,9 +151,12 @@ class Transaction(db.Model):
     #*******************relationships********************************
     wallet_ctivities = db.relationship('WalletActivity', backref='transaction', lazy=True)    
     category = db.relationship('Category', backref='transaction',uselist=False)
+
+    #!-----------------------------------------------------------------------
     def save(self):
         db.session.add(self)
         db.session.commit()
+    #!-----------------------------------------------------------------------
     
     @classmethod
     def transaction_fees(cls,amount):
@@ -188,6 +183,8 @@ class Transaction(db.Model):
             deduction = amount * deductionF
 
         return deduction
+
+    #!-----------------------------------------------------------------------
     
     @classmethod
     def generate_unique_id(cls):
@@ -197,7 +194,7 @@ class Transaction(db.Model):
         return unique_id
     
     def __repr__(self):
-        return f'(id: {self.id}, amount: {self.amount},sender_id: {self.sender_id} ,receiver_account: {self.receiver_account}, status: {self.status} )'
+        return f'(id: {self.id}, transaction_id:{self.transaction_id} amount: {self.amount},sender_id: {self.sender_id} ,receiver_account: {self.receiver_account}, receiver_name: {self.receiver_name},sender_name: {self.sender_name}, category:{self.category.type} )'
 
 
 
@@ -236,7 +233,7 @@ class Wallet(db.Model):
 
 
     user_prof_id = db.Column(db.Integer, db.ForeignKey('users_profile.id'))
-    user_profile = db.relationship('User_Profile', back_populates='wallet', )
+    # user_profile = db.relationship('User_Profile', back_populates='wallet', )
 
  
 
@@ -247,7 +244,7 @@ class Wallet(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return f'(id: {self.id}, balance: {self.balance},user_id: {self.user_prof_id}  )'
+        return f'(id: {self.id}, balance: {self.balance},user_id: {self.user_prof_id}, type: {self.type}  )'
 
 
 

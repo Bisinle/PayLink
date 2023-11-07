@@ -57,7 +57,8 @@ with app.app_context():
                 phone_number=random.randint(1111111111,9999999999),
                 Account = ''.join(random.choice(string.digits) for _ in range(14)),            
                 profile_pictur='https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
-                user_id = [user.id for user in user_list][i]
+                user_id = [user.id for user in user_list][i],
+                status= rc(['Active','Inactive'])
                 
             )
             i+=1
@@ -120,7 +121,7 @@ with app.app_context():
             sender_id=sender.id,
             sender_name=sender.full_name(),
 
-            amount=random.randint(1000, 200000),
+            amount=random.randint(10, 2000),
             receiver_account=receiver.Account,
             receiver_name=receiver.full_name(),
             category_id=rc(category_id)

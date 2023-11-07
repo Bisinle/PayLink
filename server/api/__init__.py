@@ -20,7 +20,12 @@ from api.config import ApplicationConfig
 # create both app and api instances
 app = Flask(__name__)
 
-CORS(app, supports_credentials=True)
+CORS(app)
+
+# CORS(app, supports_credentials=True)
+# CORS(app, origins= "http://localhost:5173")
+# CORS(app, methods=["GET", "POST", "PUT", "DELETE"])
+# CORS(app, allow_headers=["Content-Type"])
 bcrypt = Bcrypt(app)
 
 ma = Marshmallow(app)

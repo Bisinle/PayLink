@@ -46,7 +46,9 @@ class UserProfileSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
     beneficiaries = ma.List(ma.Nested("BeneficiarySchema"))
-    # wallet = ma.Nested("WalletSchema")
+    wallet = ma.List(ma.Nested("WalletSchema"))
+    transactions =  ma.List(ma.Nested("TreansactionSchema"))
+    wallet_ctivities=ma.List(ma.Nested("WalletActivitySchema"))
 
 UserProfile_Schema = UserProfileSchema()
 UserProfiles_Schema = UserProfileSchema(many=True)
@@ -130,7 +132,7 @@ transactions_Schema = TreansactionSchema(many=True)
                 #*********WALLET API.MODEL*************************************
 update_wallet =api.model('update_wallet',{
 
-    'amount':fields.Integer,
+    'id':fields.Integer,
   
 
 
@@ -139,6 +141,16 @@ create_wallet =api.model('create_wallet',{
 # i will  set the amoun to 0 since the is a new wallt the user created and status to Active
     'user_prof_id':fields.Integer,
     'type':fields.String,
+  
+
+
+})
+move_money =api.model('move_money',{
+# i will  set the amoun to 0 since the is a new wallt the user created and status to Active
+    'amount':fields.Integer,
+    'from_wallet':fields.String,
+    'to_wallet':fields.String,
+    'user_id':fields.String,
   
 
 
@@ -159,9 +171,9 @@ create_transaction =api.model('create_transaction',{
 
 user_model_input =api.model('signup',{
     
-    'user_name':fields.String,
-    # 'profile_picture':fields.String,
-    'password':fields.String,
+    'amout':fields.String,
+    'type':fields.String,
+    'user_id':fields.String,
     # 'roles':fields.String change--- this when handlind the posting
     # 'public_id':fields.String,-- and this one aswell
   
@@ -193,3 +205,9 @@ login_model =api.model('login',{
   
 
 })
+
+
+
+
+
+
