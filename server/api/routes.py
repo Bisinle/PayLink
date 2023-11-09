@@ -293,11 +293,8 @@ class Transactions(Resource):
         db.session.add_all([sender_wallet_activity,receiver_wallet_activity])
         db.session.commit()
 
-
         return make_response(jsonify({"message":f"money from wallet to {receiver.first_name}"}))
-        
-
-
+     
 '''____________W A L L E T __________-A C T I V I T Y________________________'''
 
 @wallet.route('/wallet-Activity')
