@@ -178,12 +178,6 @@ class Refresh(Resource):
 
 
 
-
-
-
-
-
-
 @ns.route('/users')
 class UserProfiles(Resource):
     def get(self):
@@ -225,12 +219,9 @@ class SingleUserProfile(Resource):
              
         return make_response(UserProfile_Schema.dump(user),200)
 
- 
- 
+  
 
- 
-
-'''_____________W   A   L  L  E  T ____________________________'''
+#!'''_____________W   A   L  L  E  T ____________________________'''
 @wallet.route('/wallet')
 class Wallets(Resource):
     method_decorators = [jwt_required()]
@@ -318,7 +309,7 @@ class Wallets(Resource):
     
 
 
-'''_____________M O V E      M O N E Y  ____________________________'''
+#!'''_____________M O V E      M O N E Y  ____________________________'''
 
 @wallet.route('/move-movey')
 class Wallets(Resource):
@@ -367,8 +358,6 @@ class Wallets(Resource):
 
 
 
-
-        
  
 @wallet.route('/wallet/<int:id>')
 class Wallets(Resource):
@@ -400,11 +389,8 @@ class Wallets(Resource):
     
 
    
- 
 
-
-
-'''_____________A L L          T R A N S A C T I O N S____________________________'''
+#!'''_____________A L L          T R A N S A C T I O N S____________________________'''
 @transactions.route('/transactions')
 class Transactions(Resource):
     method_decorators = [jwt_required()]
@@ -529,7 +515,7 @@ class Transactions(Resource):
 
  
 
-'''-----------P E R S O N A L I Z E     T R A N S A C T I O N S---------------'''
+#!'''-----------P E R S O N A L I Z E     T R A N S A C T I O N S---------------'''
 
 @transactions.route('/user_transactions')
 class UserTransactions(Resource):
@@ -546,7 +532,7 @@ class UserTransactions(Resource):
        
         
 
-'''____________W A L L E T __________-A C T I V I T Y________________________'''
+#!'''____________W A L L E T __________-A C T I V I T Y________________________'''
 
 @wallet.route('/wallet-Activity')
 class WalletsActivity(Resource):
@@ -561,7 +547,7 @@ class WalletsActivity(Resource):
     
 
 
-'''------------B E N E F I C I A R I E S      M O D E L--------'''
+#!'''------------B E N E F I C I A R I E S      M O D E L--------'''
  
 @beneficiaries.route('/beneficiaries')
 class Beneficiaries(Resource):
@@ -576,17 +562,3 @@ class Beneficiaries(Resource):
         return make_response(Beneficiarys_Schema.dump(benef))
 
 
-# @beneficiaries.route('/user_beneficiaries')
-# class UserBeneficiaries(Resource):
-#     # @wallet.expect(update_wallet)
-#     @jwt_required()
-#     def get(self):
-#         current_user = get_jwt_identity()
-#         print('----------------------------',current_user)
-#         beneficiaries = Beneficiary.query.all()
-#         # we choose a user till we fix the login and signup
-#         user = User_Profile.query.filter_by(id=7).first()
-#         benef = user.beneficiaries
-#         # if not beneficiaries or not benef:
-#         #     return make_response({"msg":"not beneficiaries found in the db"})
-#         return make_response(Beneficiarys_Schema.dump(benef))
